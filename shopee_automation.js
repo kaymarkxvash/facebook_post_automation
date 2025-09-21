@@ -442,7 +442,7 @@ query({
 	}
 	*/
 	//---------------- schedule
-	await sendMessage("t_2319149958504140", "Scraped Successfully, Please Wait...");
+	sendMessage("t_2319149958504140", "Scraped Successfully, Please Wait...");
 	schedule(payload_upload, resp);
 });
 
