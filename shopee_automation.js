@@ -1,6 +1,3 @@
-
-
-
 async function AUTOMATE(){
 	console.log('Hook Initiated Successfully');
 	
@@ -395,6 +392,7 @@ const PROMPT = `
 const INSTRUCTION = `
 this is your instruction to create a Facebook caption in fluent TAGALOG with the following requirements:
 - [title]
+-- dont add asterisk (*), just add emoji if needs 
 -- Transform and optimize into a catchy, attention-grabbing headline that encourages viewers to buy, dont make super long
 -- Introduce the central conflict or a major revelation that changes the course of the product
 -- add emoji to hook viewers, just like a sales talk to real person in fluent tagalog, add emoji.
