@@ -1,8 +1,7 @@
-// https://cdn.jsdelivr.net/gh/kaymarkxvash/facebook_post_automation/shopee_automation.js
 //(function() {
 	console.log('Hook Initiated');
 	const _originalFetch = window.fetch;
-
+		
 //--------------------------- FETCH HOOK START ---------------------------//
 bridge.me2("shopee"); // (optional) Custom bridge call (probably for communication with Android/extension)
 const TARGET_URLS = ['get_pc']; 
@@ -227,7 +226,7 @@ function schedule(attachment, resp){
 		}else{
 			alert("No scheduled posts found");
 			if(confirm("Do you want to Schedule this post?")){
-				const publish_date = getPublishTime(new Date());
+				const publish_date = getPublishTime(new Date(new Date().getTime() + (1 * 60 * 60 * 1000) ));
 				postMedia(attachment, resp, publish_date);
 			}
 		}
@@ -408,10 +407,18 @@ query({
 	const resp = response.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ No content in response";
 	console.log("AI Response: " + resp);
 	
-	//---------------- shopee video + photo
+	//---------------- shopee
 	const assets = dataset.product_images;// [images | video]
 	var payload_upload = [];
 	
+	const image_domain = "https://down-ph.img.susercontent.com/file/";
+	const _type = "photo";
+	
+	for(let i=0; i < assets.images.length; i++){
+		const _url = image_domain + assets.images[i] + ".webp";
+		payload_upload.push({ type: _type, url: _url });
+	}
+	console.log("image_url: " + JSON.stringify(payload_upload));
 	/*
 	if(assets.video){
 		const video_domain = "https://cvf.shopee.ph/";
@@ -435,16 +442,6 @@ query({
 		console.log("image_url: " + JSON.stringify(payload_upload));
 	}
 	*/
-	const image_domain = "https://down-ph.img.susercontent.com/file/";
-	const _type = "photo";
-	
-	for(let i=0; i < assets.images.length; i++){
-		const _url = image_domain + assets.images[i] + ".webp";
-		payload_upload.push({ type: _type, url: _url });
-	}
-	console.log("image_url: " + JSON.stringify(payload_upload));
-	//---------------- shopee video + photo
-	
 	//---------------- schedule
 	schedule(payload_upload, resp);
 });
