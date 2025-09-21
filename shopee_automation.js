@@ -1,66 +1,87 @@
-console.log('Hook Initiated');
-const _originalFetch = window.fetch;
-		
-//--------------------------- FETCH HOOK START ---------------------------//
-const TARGET_URLS = ['get_pc']; 
-window.fetch = function(input, init = {}) {// 0
-	try {
-		let url = (typeof input === 'string') ? input : input.url;
-		let originalUrl = url;
-		let modifiedUrl = url;
-		
-		const shouldLog = TARGET_URLS.some(keyword => url.includes(keyword));
-		if(shouldLog) {
-			const urlObj = new URL(url, location.origin);
-			const params = urlObj.searchParams;
-			if (params.has('filter') && params.has('limit')){
-				params.set('filter', '3');
-				params.set('limit', '6');
-				modifiedUrl = urlObj.toString();
-				console.log("final url:", modifiedUrl);
-			}
-			if (typeof input === 'string') {
-				input = modifiedUrl;
-			} else {
-				input = new Request(modifiedUrl, input);
-			}
+async function AUTOMATE(){
+	console.log('Hook Initiated Successfully');
+	
+	const product_regex = /^https:\/\/shopee\.ph\/product\/[^\s]+/;
+	if(product_regex.test(window.location.href)){
+		const shopee_regex = /^https:\/\/s\.shopee\.ph\/[^\s]+/;
+		if(shopee_regex.test(bridge.paste())){
+			console.log("A");
+		 	scrapeShopee();
+		}else{
+			console.log("B");
+			await startMonitor("t_2319149958504140");
 		}
-		
-		if (!init.credentials) {
-			init.credentials = 'same-origin';
-		}
-		
-		//--------------------- FETCH RESPONSE HANDLING ---------------------//
-		return _originalFetch.call(this, input, init).then(response => {//2
-			if (!shouldLog) return response;
-			const cloned = response.clone();
-			cloned.text().then(body => {
-				let parsedBody = body;
-				try {
-					parsedBody = JSON.parse(body);
-				}catch (_) {
-					console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
-				}
-				if(typeof parsedBody === 'object'){
-					if(modifiedUrl.includes("get_pc")){
-						get_pc(parsedBody);
-					}
-				}
-			}); 
-			return response;
-		});
-		//--------------------- FETCH RESPONSE HANDLING ---------------------//
-	} catch (err) {
-		console.warn('[Fetch Hook Error]', err);
-		return _originalFetch.call(this, input, init);
+	}else{
+		console.log("URL: " + window.location.href);
 	}
-};
-
-try {
-	Object.defineProperty(window, 'fetch', { configurable: false });
-}catch (e) {
-	console.log('Failed to lock fetch: ' + e);
 }
+
+
+//--------------------------- FETCH HOOK START ---------------------------//
+
+function scrapeShopee(){
+	const TARGET_URLS = ['get_pc']; 
+	const _originalFetch = window.fetch;
+	window.fetch = function(input, init = {}) {// 0
+		try {
+			let url = (typeof input === 'string') ? input : input.url;
+			let originalUrl = url;
+			let modifiedUrl = url;
+			
+			const shouldLog = TARGET_URLS.some(keyword => url.includes(keyword));
+			if(shouldLog) {
+				const urlObj = new URL(url, location.origin);
+				const params = urlObj.searchParams;
+				if (params.has('filter') && params.has('limit')){
+					params.set('filter', '3');
+					params.set('limit', '6');
+					modifiedUrl = urlObj.toString();
+					console.log("final url:", modifiedUrl);
+				}
+				if (typeof input === 'string') {
+					input = modifiedUrl;
+				} else {
+					input = new Request(modifiedUrl, input);
+				}
+			}
+			
+			if (!init.credentials) {
+				init.credentials = 'same-origin';
+			}
+			
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+			return _originalFetch.call(this, input, init).then(response => {//2
+				if (!shouldLog) return response;
+				const cloned = response.clone();
+				cloned.text().then(body => {
+					let parsedBody = body;
+					try {
+						parsedBody = JSON.parse(body);
+					}catch (_) {
+						console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
+					}
+					if(typeof parsedBody === 'object'){
+						if(modifiedUrl.includes("get_pc")){
+							get_pc(parsedBody);
+						}
+					}
+				}); 
+				return response;
+			});
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+		} catch (err) {
+			console.warn('[Fetch Hook Error]', err);
+			return _originalFetch.call(this, input, init);
+		}
+	};
+	
+	try {
+		Object.defineProperty(window, 'fetch', { configurable: false });
+	}catch (e) {
+		console.log('Failed to lock fetch: ' + e);
+	}
+}
+
 
 function get_pc(json){
 	const link = bridge.paste();
@@ -239,11 +260,12 @@ function schedule(attachment, resp){
 
 //--------------------------- FACEBOOK ADVANCE ---------------------------//
 async function startMonitor(conversation){
+	bridge.copy("KREATION BROWSER");
 	let loop = 0;
 	console.log("Monitoring Mode...");
 	while(true){
 		loop += 1;
-		//console.log("Monitoring Mode Loop: " + loop);
+		console.log("Monitoring Mode Loop: " + loop);
 		await monitorConversation(conversation);
 		await new Promise(resolve => setTimeout(resolve, 3000));
 	}
@@ -330,6 +352,7 @@ async function monitorConversation(conversationId) {
 				bridge.loadUrl(msgText);
 			}// else { console.log("⚠️ Message is either 'Post Completed' or not a URL."); }
 		}
+		return;
 	} catch (err) {
 		console.log("❌ Exception:", err.message);
 	}
@@ -537,3 +560,6 @@ async function getLastScheduledPost(){
 	}
 }
 //--------------------------- SCHEDULE FB POST ---------------------------//
+
+
+AUTOMATE();
