@@ -1,5 +1,5 @@
 async function AUTOMATE(){
-	console.log('Hook Initiated v1.2);
+	console.log('Hook Initiated Successfully');
 	
 	const product_regex = /^https:\/\/shopee\.ph\/product\/[^\s]+/;
 	if(product_regex.test(window.location.href)){
@@ -76,7 +76,7 @@ function scrapeShopee() {
 			});
 			//--------------------- FETCH RESPONSE HANDLING ---------------------//
 		} catch (err) {
-            console.warn('[Fetch Hook Error]', err);
+            console.log('[Fetch Hook Error]', err);
             return _originalFetch.call(this, input, init);
         }
     }
