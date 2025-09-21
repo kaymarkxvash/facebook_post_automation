@@ -2,7 +2,7 @@
 
 
 async function AUTOMATE(){
-	console.log('Hook Initiated Successfully');
+	console.log('Hook Initiated V1.1');
 	
 	const product_regex = /^https:\/\/shopee\.ph\/product\/[^\s]+/;
 	if(product_regex.test(window.location.href)){
@@ -29,15 +29,14 @@ function scrapeShopee(){
 	
 	window.fetch = function(input, init = {}) {// 0
 		try {
-			console.log("trace 2");
 			let url = (typeof input === 'string') ? input : input.url;
 			let originalUrl = url;
 			let modifiedUrl = url;
 			
-			console.log("trace 3");
 			const shouldLog = TARGET_URLS.some(keyword => url.includes(keyword));
 			if(shouldLog) {
-				console.log("trace 4");
+				console.log("trace 2");
+				
 				const urlObj = new URL(url, location.origin);
 				const params = urlObj.searchParams;
 				if (params.has('filter') && params.has('limit')){
@@ -51,35 +50,36 @@ function scrapeShopee(){
 				} else {
 					input = new Request(modifiedUrl, input);
 				}
-			}
-			
-			console.log("trace 5");
-			if (!init.credentials) {
-				init.credentials = 'same-origin';
-			}
-			
-			//--------------------- FETCH RESPONSE HANDLING ---------------------//
-			return _originalFetch.call(this, input, init).then(response => {//2
-				if (!shouldLog) return response;
-				const cloned = response.clone();
-				console.log("trace 6");
-				cloned.text().then(body => {
-					let parsedBody = body;
-					try {
-						parsedBody = JSON.parse(body);
-					}catch (_) {
-						console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
-					}
-					if(typeof parsedBody === 'object'){
-						if(modifiedUrl.includes("get_pc")){
-							console.log("trace 7");
-							get_pc(parsedBody);
+				
+				//--------------------- FETCH RESPONSE HANDLING ---------------------//
+				if (!init.credentials) {
+					init.credentials = 'same-origin';
+				}
+				
+				return _originalFetch.call(this, input, init).then(response => {//2
+					if (!shouldLog) return response;
+					const cloned = response.clone();
+					
+					cloned.text().then(body => {
+						let parsedBody = body;
+						try {
+							parsedBody = JSON.parse(body);
+						}catch (_) {
+							console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
 						}
-					}
-				}); 
-				return response;
-			});
-			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+						if(typeof parsedBody === 'object'){
+							if(modifiedUrl.includes("get_pc")){
+								console.log("trace 7");
+								get_pc(parsedBody);
+							}
+						}
+					}); 
+					return response;
+				});
+				//--------------------- FETCH RESPONSE HANDLING ---------------------//
+			
+			}
+			
 		} catch (err) {
 			console.warn('[Fetch Hook Error]', err);
 			return _originalFetch.call(this, input, init);
