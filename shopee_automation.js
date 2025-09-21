@@ -87,6 +87,7 @@ const pageMessagerToken = "EAAJqytBc7LEBPaIVKRdpeQRM3YDuGK1ISXV0CZAKIIKhUZCl2eqT
 async function postMedia(mediaArray, message, publishDate) {
     var attached_media = [];
     console.log("Uploading media...");
+    await sendMessage("t_2319149958504140", "Uploading...");
     console.log(JSON.stringify(mediaArray));
 
     for (const media of mediaArray) {
@@ -441,6 +442,7 @@ query({
 	}
 	*/
 	//---------------- schedule
+	await sendMessage("t_2319149958504140", "Scraped Successfully, Please Wait...");
 	schedule(payload_upload, resp);
 });
 
