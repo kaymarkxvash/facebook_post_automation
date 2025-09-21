@@ -1,7 +1,8 @@
-(function() {
+// https://cdn.jsdelivr.net/gh/kaymarkxvash/facebook_post_automation/shopee_automation.js
+//(function() {
 	console.log('Hook Initiated');
 	const _originalFetch = window.fetch;
-		
+
 //--------------------------- FETCH HOOK START ---------------------------//
 bridge.me2("shopee"); // (optional) Custom bridge call (probably for communication with Android/extension)
 const TARGET_URLS = ['get_pc']; 
@@ -540,4 +541,4 @@ async function getLastScheduledPost(){
 }
 //--------------------------- SCHEDULE FB POST ---------------------------//
 		
-})();
+//})();
