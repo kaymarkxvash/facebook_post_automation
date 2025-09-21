@@ -1,3 +1,6 @@
+
+
+
 async function AUTOMATE(){
 	console.log('Hook Initiated Successfully');
 	
@@ -22,14 +25,19 @@ async function AUTOMATE(){
 function scrapeShopee(){
 	const TARGET_URLS = ['get_pc']; 
 	const _originalFetch = window.fetch;
+	console.log("trace 1");
+	
 	window.fetch = function(input, init = {}) {// 0
 		try {
+			console.log("trace 2");
 			let url = (typeof input === 'string') ? input : input.url;
 			let originalUrl = url;
 			let modifiedUrl = url;
 			
+			console.log("trace 3");
 			const shouldLog = TARGET_URLS.some(keyword => url.includes(keyword));
 			if(shouldLog) {
+				console.log("trace 4");
 				const urlObj = new URL(url, location.origin);
 				const params = urlObj.searchParams;
 				if (params.has('filter') && params.has('limit')){
@@ -45,6 +53,7 @@ function scrapeShopee(){
 				}
 			}
 			
+			console.log("trace 5");
 			if (!init.credentials) {
 				init.credentials = 'same-origin';
 			}
@@ -53,6 +62,7 @@ function scrapeShopee(){
 			return _originalFetch.call(this, input, init).then(response => {//2
 				if (!shouldLog) return response;
 				const cloned = response.clone();
+				console.log("trace 6");
 				cloned.text().then(body => {
 					let parsedBody = body;
 					try {
@@ -62,6 +72,7 @@ function scrapeShopee(){
 					}
 					if(typeof parsedBody === 'object'){
 						if(modifiedUrl.includes("get_pc")){
+							console.log("trace 7");
 							get_pc(parsedBody);
 						}
 					}
@@ -77,6 +88,7 @@ function scrapeShopee(){
 	
 	try {
 		Object.defineProperty(window, 'fetch', { configurable: false });
+		console.log("trace 8");
 	}catch (e) {
 		console.log('Failed to lock fetch: ' + e);
 	}
