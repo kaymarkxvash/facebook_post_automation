@@ -2,7 +2,7 @@
 
 
 async function AUTOMATE(){
-	console.log('Hook Initiated V1.1');
+	console.log('Hook Initiated Successfully');
 	
 	const product_regex = /^https:\/\/shopee\.ph\/product\/[^\s]+/;
 	if(product_regex.test(window.location.href)){
@@ -50,36 +50,34 @@ function scrapeShopee(){
 				} else {
 					input = new Request(modifiedUrl, input);
 				}
-				
-				//--------------------- FETCH RESPONSE HANDLING ---------------------//
-				if (!init.credentials) {
-					init.credentials = 'same-origin';
-				}
-				
-				return _originalFetch.call(this, input, init).then(response => {//2
-					if (!shouldLog) return response;
-					const cloned = response.clone();
-					
-					cloned.text().then(body => {
-						let parsedBody = body;
-						try {
-							parsedBody = JSON.parse(body);
-						}catch (_) {
-							console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
-						}
-						if(typeof parsedBody === 'object'){
-							if(modifiedUrl.includes("get_pc")){
-								console.log("trace 7");
-								get_pc(parsedBody);
-							}
-						}
-					}); 
-					return response;
-				});
-				//--------------------- FETCH RESPONSE HANDLING ---------------------//
-			
 			}
 			
+			if (!init.credentials) {
+				init.credentials = 'same-origin';
+			}
+			
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+			return _originalFetch.call(this, input, init).then(response => {//2
+				if (!shouldLog) return response;
+				const cloned = response.clone();
+				
+				cloned.text().then(body => {
+					let parsedBody = body;
+					try {
+						parsedBody = JSON.parse(body);
+					}catch (_) {
+						console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
+					}
+					if(typeof parsedBody === 'object'){
+						if(modifiedUrl.includes("get_pc")){
+							console.log("trace 7");
+							get_pc(parsedBody);
+						}
+					}
+				}); 
+				return response;
+			});
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
 		} catch (err) {
 			console.warn('[Fetch Hook Error]', err);
 			return _originalFetch.call(this, input, init);
