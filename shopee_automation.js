@@ -1,5 +1,5 @@
 async function AUTOMATE(){
-	console.log('Hook Initiated Successfully');
+	console.log('Hook Initiated v1.2);
 	
 	const product_regex = /^https:\/\/shopee\.ph\/product\/[^\s]+/;
 	if(product_regex.test(window.location.href)){
@@ -19,6 +19,93 @@ async function AUTOMATE(){
 
 //--------------------------- FETCH HOOK START ---------------------------//
 
+function scrapeShopee() {
+    const TARGET_URLS = ['get_pc'];
+    const _originalFetch = window.fetch;
+    console.log("trace 1");
+
+    function hookedFetch(input, init = {}) { // 0
+        try {
+        	let url = (typeof input === 'string') ? input : input.url;
+            let originalUrl = url;
+            let modifiedUrl = url;
+            
+            const shouldLog = TARGET_URLS.some(keyword => url.includes(keyword));
+			if(shouldLog) {
+				console.log("trace 2");
+				
+				const urlObj = new URL(url, location.origin);
+				const params = urlObj.searchParams;
+				if (params.has('filter') && params.has('limit')){
+					params.set('filter', '3');
+					params.set('limit', '6');
+					modifiedUrl = urlObj.toString();
+					console.log("final url:", modifiedUrl);
+				}
+				if (typeof input === 'string') {
+					input = modifiedUrl;
+				} else {
+					input = new Request(modifiedUrl, input);
+				}
+			}
+			
+			if (!init.credentials) {
+				init.credentials = 'same-origin';
+			}
+			
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+			return _originalFetch.call(this, input, init).then(response => {//2
+				if (!shouldLog) return response;
+				const cloned = response.clone();
+				
+				cloned.text().then(body => {
+					let parsedBody = body;
+					try {
+						parsedBody = JSON.parse(body);
+					}catch (_) {
+						console.log("[parsedBody not found] "+modifiedUrl + "\n[at] "+_);
+					}
+					if(typeof parsedBody === 'object'){
+						if(modifiedUrl.includes("get_pc")){
+							console.log("trace 7");
+							get_pc(parsedBody);
+						}
+					}
+				}); 
+				return response;
+			});
+			//--------------------- FETCH RESPONSE HANDLING ---------------------//
+		} catch (err) {
+            console.warn('[Fetch Hook Error]', err);
+            return _originalFetch.call(this, input, init);
+        }
+    }
+
+	// Step 1: Override
+    window.fetch = hookedFetch;
+
+	//Step 2: Lock (non-configurable + non-writable)
+    try {
+        Object.defineProperty(window, "fetch", {
+            configurable: false,
+            writable: false,
+            value: hookedFetch
+        });
+        console.log("trace 8 (fetch locked)");
+    } catch (e) {
+        console.log("Failed to lock fetch: " + e);
+    }
+
+    // Step 3: Watchdog to restore if replaced
+    setInterval(() => {
+        if (window.fetch !== hookedFetch) {
+            console.log("⚠️ Fetch overwritten, restoring...");
+            window.fetch = hookedFetch;
+        }
+    }, 1000);
+    
+}
+/*
 function scrapeShopee(){
 	const TARGET_URLS = ['get_pc']; 
 	const _originalFetch = window.fetch;
@@ -88,7 +175,7 @@ function scrapeShopee(){
 		console.log('Failed to lock fetch: ' + e);
 	}
 }
-
+*/
 
 function get_pc(json){
 	const link = bridge.paste();
