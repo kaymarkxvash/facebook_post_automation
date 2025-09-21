@@ -1,9 +1,7 @@
-//(function() {
-	console.log('Hook Initiated');
-	const _originalFetch = window.fetch;
+console.log('Hook Initiated');
+const _originalFetch = window.fetch;
 		
 //--------------------------- FETCH HOOK START ---------------------------//
-bridge.me2("shopee"); // (optional) Custom bridge call (probably for communication with Android/extension)
 const TARGET_URLS = ['get_pc']; 
 window.fetch = function(input, init = {}) {// 0
 	try {
@@ -537,5 +535,3 @@ async function getLastScheduledPost(){
 	}
 }
 //--------------------------- SCHEDULE FB POST ---------------------------//
-		
-//})();
